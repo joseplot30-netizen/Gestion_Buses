@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSoft Corp | Control de Sistemas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'automotive-blue': '#0f172a',
+                        'neon-accent': '#38bdf8',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-automotive-blue text-slate-200 font-sans">
+
+    <nav class="border-b border-slate-700 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 bg-neon-accent rounded-lg flex items-center justify-center text-slate-900 font-bold">
+                        A</div>
+                    <span class="text-xl font-bold tracking-tight">AutoSoft <span
+                            class="text-neon-accent">Corp</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <span class="text-slate-400 px-3 py-2 rounded-md text-sm font-medium">Estado: En línea</span>
+                        <span class="text-slate-400 px-3 py-2 rounded-md text-sm font-medium">Versión 1.1.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="mb-12">
+            <h1 class="text-4xl font-extrabold text-white mb-2">Monitor de Sistemas Automotrices</h1>
+            <p class="text-slate-400">Gestión centralizada de software para flotas y unidades individuales.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            <div
+                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-neon-accent transition group">
+                <h3 class="text-lg font-semibold mb-2 group-hover:text-neon-accent">Estado de Conexión</h3>
+                <p class="text-3xl font-bold text-white">99.7%</p>
+                <span class="text-xs text-emerald-400">● Sistema estable</span>
+            </div>
+            <div
+                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-neon-accent transition group">
+                <h3 class="text-lg font-semibold mb-2 text-slate-300 group-hover:text-neon-accent">Buses en Servicio</h3>
+                <p class="text-3xl font-bold text-white">112</p>
+                <span class="text-xs text-slate-500 italic">Datos en tiempo real</span>
+            </div>
+            <div
+                class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-neon-accent transition group">
+                <h3 class="text-lg font-semibold mb-2 text-slate-300 group-hover:text-neon-accent">Incidentes Pendientes</h3>
+                <p class="text-3xl font-bold text-red-400">4</p>
+                <span class="text-xs text-red-400 font-medium">Atender con prioridad</span>
+            </div>
+        </div>
+
+
+
+        <section id="login-bus"
+            class="bg-slate-900 rounded-2xl p-8 border border-slate-800 max-w-md mx-auto shadow-2xl">
+            <h2 class="text-2xl font-bold mb-2 text-center text-white">Acceso de Unidad</h2>
+            <p class="text-slate-400 text-sm text-center mb-8">Ingrese las credenciales del bus para diagnóstico</p>
+
+            <form id="formLogin" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Usuario o Código de Unidad</label>
+                    <input type="text" id="usuario" name="usuario" required placeholder="usuario123 o BUS-2026-X"
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-sky-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Contraseña de Sistema</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••"
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-sky-500 outline-none transition">
+                </div>
+                <button type="submit"
+                    class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-lg transition transform active:scale-95 shadow-lg shadow-sky-900/20">
+                    Iniciar Sesión de Software
+                </button>
+                <div id="mensaje_login" class="text-center text-sm mt-4"></div>
+            </form>
+        </section>
+
+        <script>
+            const form = document.getElementById('formLogin');
+            const mensajeDiv = document.getElementById('mensaje_login');
+
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData();
+                const valor = document.getElementById('usuario').value.trim();
+
+                // Enviamos el valor en los tres campos posibles (se chequeará en backend)
+                formData.append('username', valor);
+                formData.append('codigo_unidad', valor);
+                formData.append('codigo_bus', valor);
+                formData.append('password', document.getElementById('password').value);
+
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/login', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        mensajeDiv.className = "mt-4 text-center text-red-400 font-bold";
+                        mensajeDiv.innerText = "❌ " + (data.detail || data.message || "Acceso Denegado");
+                        return;
+                    }
+
+                    mensajeDiv.className = "mt-4 text-center text-green-400 font-bold";
+                    mensajeDiv.innerText = "✅ " + data.message;
+
+setTimeout(() => {
+    // 1. Guardamos los datos en el navegador para que sean universales.
+    const unidad = data.codigo_unidad || data.bus_codigo || document.getElementById('usuario').value.trim() || "no hay datos";
+    const nombre = data.nombre || document.getElementById('usuario').value.trim() || "no hay datos";
+
+    localStorage.setItem('unidad_bus', unidad);
+    localStorage.setItem('nombre_usuario', nombre);
+
+    // 2. Definimos el destino según el rol
+    const destino = data.is_admin ? "admin.php" : "bus_status.php";
+    const urlDestino = data.is_admin
+        ? `${destino}`
+        : `${destino}?unidad=${encodeURIComponent(unidad)}`;
+
+    console.log("Redirigiendo a:", urlDestino);
+    window.location.href = urlDestino;
+}, 800);
+
+                } catch (error) {
+                    mensajeDiv.className = "mt-4 text-center text-red-400 font-bold";
+                    mensajeDiv.innerText = "❌ Error de conexión al servidor";
+                    console.error("Error en fetch:", error);
+                }
+            };
+        </script>
+    </main>
+
+</body>
+
+</html>
